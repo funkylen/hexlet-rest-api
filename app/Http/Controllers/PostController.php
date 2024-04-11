@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -17,6 +18,8 @@ class PostController extends Controller
 
     public function create()
     {
+        Gate::authorize('create', Post::class);
+
         $post = new Post();
 
         $html = html()->model($post);
@@ -26,6 +29,8 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create', Post::class);
+
         $validated = $request->validate([
             'title' => 'required|string',
             'content' => 'required|string',
@@ -47,6 +52,8 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
+        Gate::authorize('update', $post);
+
         $html = html()->model($post);
 
         return view('post.edit', compact('post', 'html'));
@@ -54,6 +61,8 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
+        Gate::authorize('update', $post);
+
         $validated = $request->validate([
             'title' => 'string',
             'content' => 'string',
@@ -67,8 +76,20 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
+        Gate::authorize('delete', $post);
+
         $post->delete();
 
         return redirect()->route('posts.index');
+    }
+
+    public function attachImage(Request $request, Post $post)
+    {
+        $request->validate(['image' => 'required|image']);
+
+        $post->image_filepath = $request->file('image')->store('images');
+        $post->save();
+
+        return redirect()->route('posts.show', $post);
     }
 }

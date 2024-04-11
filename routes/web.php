@@ -18,6 +18,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // DELETE /posts/:id - destroy - удалить пост
 // GET /posts/:id - show - показать пост
 Route::resource('posts', PostController::class);
+Route::post('/posts/{post}/attach_image', [PostController::class, 'attachImage'])->name('posts.attach_image');
 
 // TODO: Comments
 Route::resource('posts.comments', CommentController::class)->only('store', 'destroy');
